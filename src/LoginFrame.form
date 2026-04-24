@@ -210,6 +210,9 @@
                 </Property>
                 <Property name="text" type="java.lang.String" value="Login"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="LogActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>
@@ -220,6 +223,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="Sign-in"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="signActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel2">
           <Properties>

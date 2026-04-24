@@ -1,4 +1,10 @@
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.swing.JOptionPane;
+import javax.xml.transform.Result;
+
 public class LoginFrame extends javax.swing.JFrame {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(LoginFrame.class.getName());
@@ -48,6 +54,7 @@ public class LoginFrame extends javax.swing.JFrame {
 
         Log.setFont(new java.awt.Font("Serif", 0, 18)); // NOI18N
         Log.setText("Login");
+        Log.addActionListener(this::LogActionPerformed);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -90,6 +97,7 @@ public class LoginFrame extends javax.swing.JFrame {
 
         sign.setFont(new java.awt.Font("Serif", 0, 18)); // NOI18N
         sign.setText("Sign-in");
+        sign.addActionListener(this::signActionPerformed);
 
         jLabel2.setText("No Account? Sign-in here.");
 
@@ -159,6 +167,51 @@ public class LoginFrame extends javax.swing.JFrame {
             showpass.setForeground(java.awt.Color.BLACK);
         }
     }//GEN-LAST:event_showpassActionPerformed
+
+    private void signActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signActionPerformed
+        new Register_Form().setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_signActionPerformed
+
+    private void LogActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LogActionPerformed
+        Dashb dash = new Dashb();
+        Connection conn = (Connection) DBConnection.getConnection();
+
+        try {
+            String sql = "SELECT * FROM loginusers  WHERE email=? AND password=?";
+            PreparedStatement pst = conn.prepareCall(sql);
+
+            String em = email.getText();
+            String ps = new String(pass.getPassword());
+
+            pst.setString(1, em);
+            pst.setString(2, ps);
+
+            ResultSet rs = pst.executeQuery();
+
+            if (rs.next()) {
+
+                int confirm = JOptionPane.showConfirmDialog(
+                        null,
+                        "Are you sure you want to login?",
+                        "Login",
+                        JOptionPane.YES_NO_OPTION
+                );
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    dash.setVisible(true);
+                    dispose();
+                }
+
+            } else {
+                JOptionPane.showMessageDialog(null, "INCORRECT CREDENTIALS");
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+        }
+
+    }//GEN-LAST:event_LogActionPerformed
 
     public static void main(String args[]) {
 
