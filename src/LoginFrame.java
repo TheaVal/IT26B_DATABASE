@@ -179,7 +179,7 @@ public class LoginFrame extends javax.swing.JFrame {
 
         try {
             String sql = "SELECT * FROM loginusers  WHERE email=? AND password=?";
-            PreparedStatement pst = conn.prepareCall(sql);
+            PreparedStatement pst = conn.prepareStatement(sql);
 
             String em = email.getText();
             String ps = new String(pass.getPassword());
