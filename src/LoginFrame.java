@@ -8,9 +8,15 @@ import javax.xml.transform.Result;
 public class LoginFrame extends javax.swing.JFrame {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(LoginFrame.class.getName());
+    private int userId;
 
     public LoginFrame() {
         initComponents();
+    }
+
+    public void setUser(int id, String fname, String lname, String em) {
+        this.userId = id;
+        email.setText(em);
     }
 
     @SuppressWarnings("unchecked")
@@ -157,6 +163,9 @@ public class LoginFrame extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    
+    
+    
     private void showpassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showpassActionPerformed
         if (showpass.isSelected()) {
             pass.setEchoChar((char) 0);
@@ -175,16 +184,24 @@ public class LoginFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_signActionPerformed
 
     private void LogActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LogActionPerformed
-        Dashb dash = new Dashb();
-        Connection conn = (Connection) DBConnection.getConnection();
+        Connection conn = DBConnection.getConnection();
 
         try {
-            String sql = "SELECT * FROM loginusers  WHERE email=? AND password=?";
-            PreparedStatement pst = conn.prepareStatement(sql);
 
             String em = email.getText();
             String ps = new String(pass.getPassword());
 
+            if (em.isEmpty() || ps.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Please fill all fields");
+                return;
+            }
+
+            String sql = "SELECT u.id, u.firstname, u.lastname, l.email "
+           + "FROM loginusers l "
+           + "JOIN newusers u ON l.newuser_id = u.id "
+           + "WHERE l.email=? AND l.password=?";
+
+            PreparedStatement pst = conn.prepareStatement(sql);
             pst.setString(1, em);
             pst.setString(2, ps);
 
@@ -200,8 +217,17 @@ public class LoginFrame extends javax.swing.JFrame {
                 );
 
                 if (confirm == JOptionPane.YES_OPTION) {
+
+                    int id = rs.getInt("id");
+                    String firstname = rs.getString("firstname");
+                    String lastname = rs.getString("lastname");
+                    String emailDB = rs.getString("email");
+
+                    Dashb dash = new Dashb();
+                    dash.setUser(id, firstname, lastname, emailDB);
+
                     dash.setVisible(true);
-                    dispose();
+                    this.dispose();
                 }
 
             } else {
