@@ -19,14 +19,20 @@ public class Dashb extends javax.swing.JFrame {
         fullname.setEnabled(false);
         email.setEnabled(false);
 
+        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTable1MouseClicked(evt);
+            }
+        });
+
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
                 new Object[][]{},
                 new String[]{
-                    "First Name", "Last Name", "Age", "Email", "School", "Course"
+                    "ID", "First Name", "Last Name", "Age", "Email", "School", "Course"
                 }
         ) {
             boolean[] canEdit = new boolean[]{
-                false, false, false, false, false, false
+                false, false, false, false, false, false, false
             };
 
             @Override
@@ -35,7 +41,7 @@ public class Dashb extends javax.swing.JFrame {
             }
         });
 
-        // your existing code
+
         fullname.setEditable(false);
         email.setEditable(false);
 
@@ -250,6 +256,7 @@ public class Dashb extends javax.swing.JFrame {
         edit.addActionListener(this::editActionPerformed);
 
         Delete.setText("Delete");
+        Delete.addActionListener(this::DeleteActionPerformed);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -349,6 +356,7 @@ public class Dashb extends javax.swing.JFrame {
             while (rs.next()) {
 
                 model.addRow(new Object[]{
+                    rs.getInt("id"), // ✅ ADD THIS
                     rs.getString("firstname"),
                     rs.getString("lastname"),
                     rs.getInt("age"),
@@ -416,6 +424,7 @@ public class Dashb extends javax.swing.JFrame {
                 crs.setText("");
                 age.setValue(0);
 
+                loadStudents(); //
             }
 
         } catch (Exception e) {
@@ -425,39 +434,105 @@ public class Dashb extends javax.swing.JFrame {
 
     private void editActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editActionPerformed
         if (selectedStudentId == -1) {
-            JOptionPane.showMessageDialog(null, "Select a record first!");
+            JOptionPane.showMessageDialog(null, "Please select a student first!");
             return;
         }
 
         Connection conn = DBConnection.getConnection();
 
         try {
-
             String sql = "UPDATE students SET firstname=?, lastname=?, age=?, email=?, school=?, course=? WHERE id=?";
 
             PreparedStatement pst = conn.prepareStatement(sql);
 
-            pst.setString(1, fname.getText());
-            pst.setString(2, fname1.getText());
+            pst.setString(1, fname.getText().trim());
+            pst.setString(2, fname1.getText().trim());
             pst.setInt(3, (int) age.getValue());
-            pst.setString(4, em.getText());
-            pst.setString(5, scl.getText());
-            pst.setString(6, crs.getText());
-            pst.setInt(7, selectedStudentId);
+            pst.setString(4, em.getText().trim());
+            pst.setString(5, scl.getText().trim());
+            pst.setString(6, crs.getText().trim());
+            pst.setInt(7, selectedStudentId); // VERY IMPORTANT
 
-            int updated = pst.executeUpdate();
+            int result = pst.executeUpdate();
 
-            if (updated > 0) {
-                JOptionPane.showMessageDialog(null, "Updated successfully!");
+            if (result > 0) {
+                JOptionPane.showMessageDialog(null, "Student updated successfully!");
 
-                loadStudents(); // refresh table
+                // refresh table
+                loadStudents();
+
+                // reset selection
+                selectedStudentId = -1;
+
+                // clear fields
+                fname.setText("");
+                fname1.setText("");
+                em.setText("");
+                scl.setText("");
+                crs.setText("");
+                age.setValue(0);
+
+            } else {
+                JOptionPane.showMessageDialog(null, "Update failed!");
             }
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
         }
-
     }//GEN-LAST:event_editActionPerformed
+
+    private void DeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteActionPerformed
+         if (selectedStudentId == -1) {
+        JOptionPane.showMessageDialog(null, "Please select a student first!");
+        return;
+    }
+
+    int confirm = JOptionPane.showConfirmDialog(
+            null,
+            "Are you sure you want to delete this student?",
+            "Delete Confirmation",
+            JOptionPane.YES_NO_OPTION
+    );
+
+    if (confirm != JOptionPane.YES_OPTION) {
+        return;
+    }
+
+    Connection conn = DBConnection.getConnection();
+
+    try {
+        String sql = "DELETE FROM students WHERE id = ?";
+
+        PreparedStatement pst = conn.prepareStatement(sql);
+        pst.setInt(1, selectedStudentId);
+
+        int result = pst.executeUpdate();
+
+        if (result > 0) {
+            JOptionPane.showMessageDialog(null, "Student deleted successfully!");
+
+            // refresh table
+            loadStudents();
+
+            // clear selection
+            selectedStudentId = -1;
+
+            // clear fields
+            fname.setText("");
+            fname1.setText("");
+            em.setText("");
+            scl.setText("");
+            crs.setText("");
+            age.setValue(0);
+
+        } else {
+            JOptionPane.showMessageDialog(null, "Delete failed!");
+        }
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+    }
+    }//GEN-LAST:event_DeleteActionPerformed
 
     public static void main(String args[]) {
 

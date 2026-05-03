@@ -163,9 +163,7 @@ public class LoginFrame extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    
-    
-    
+
     private void showpassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showpassActionPerformed
         if (showpass.isSelected()) {
             pass.setEchoChar((char) 0);
@@ -196,18 +194,22 @@ public class LoginFrame extends javax.swing.JFrame {
                 return;
             }
 
-            String sql = "SELECT u.id, u.firstname, u.lastname, l.email "
-           + "FROM loginusers l "
-           + "JOIN newusers u ON l.newuser_id = u.id "
-           + "WHERE l.email=? AND l.password=?";
+            String sql = "SELECT l.id AS login_id, u.firstname, u.lastname, l.email\n"
+                    + "FROM loginusers l\n"
+                    + "JOIN newusers u ON l.newuser_id = u.id\n"
+                    + "WHERE l.email=? AND l.password=?";
 
             PreparedStatement pst = conn.prepareStatement(sql);
             pst.setString(1, em);
             pst.setString(2, ps);
 
             ResultSet rs = pst.executeQuery();
-
             if (rs.next()) {
+
+                int id = rs.getInt("login_id");
+                String fname = rs.getString("firstname");
+                String lname = rs.getString("lastname");
+                String emailUser = rs.getString("email");
 
                 int confirm = JOptionPane.showConfirmDialog(
                         null,
@@ -217,17 +219,13 @@ public class LoginFrame extends javax.swing.JFrame {
                 );
 
                 if (confirm == JOptionPane.YES_OPTION) {
-
-                    int id = rs.getInt("id");
-                    String firstname = rs.getString("firstname");
-                    String lastname = rs.getString("lastname");
-                    String emailDB = rs.getString("email");
-
                     Dashb dash = new Dashb();
-                    dash.setUser(id, firstname, lastname, emailDB);
+
+                    // ✅ PASS REAL VALUES
+                    dash.setUser(id, fname, lname, emailUser);
 
                     dash.setVisible(true);
-                    this.dispose();
+                    dispose();
                 }
 
             } else {
